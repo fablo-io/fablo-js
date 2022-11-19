@@ -1,0 +1,51 @@
+{
+  "name": "fablo-js",
+  "version": "0.0.1",
+  "description": "JS/TS bindings for Fablo (https://github.com/hyperledger-labs/fablo)",
+  "author": "Jakub Dzikowski <jakub@dzikowski.online>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fablo-io/fablo-js.git"
+  },
+  "keywords": [
+    "hyperledger fabric",
+    "blockchain",
+    "blockchain network",
+    "TypeScript"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/fablo-io/fablo-js/issues"
+  },
+  "homepage": "https://github.com/fablo-io/fablo-js#readme",
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "build:dist": "npm run clean && tsc -p tsconfig-dist.json && npm run copydeps",
+    "lint": "eslint --fix src e2e && madge --circular --warning src e2e && ejslint src",
+    "test": "jest src"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "eslint": "^7.24.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-prettier": "^8.2.0",
+    "eslint-import-resolver-typescript": "^2.4.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-json": "^2.1.2",
+    "eslint-plugin-prettier": "^3.4.0",
+    "jest": "^26.6.3",
+    "madge": "^4.0.2",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.5.5",
+    "ts-loader": "^9.1.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4",
+    "yeoman-test": "^5.1.0"
+  }
+}
