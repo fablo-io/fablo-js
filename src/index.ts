@@ -1,16 +1,31 @@
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import * as path from "path";
 import * as fs from "fs";
 import { FabloConfigJson as Config } from "./FabloConfigJson";
 
-const defaultFabloScriptPath = path.resolve("../bin/fablo");
-const defaultConfigPath = path.resolve("../bin/fablo-config.json");
+const defaultConfigPath = path.resolve("./bin/fablo-config.json");
 const defaultDirectory = path.resolve(".");
 
-function exec(cmd: string): Promise<Buffer> {
+const fabloScriptRaw = new Promise<Buffer>((resolve, reject) => {
+  fs.readFile(path.resolve("./bin/fablo"), (error, data) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve(data);
+    }
+  });
+});
+
+function exec(cwd: string, file: string, params: string[]): Promise<Buffer> {
   return new Promise<Buffer>((resolve, reject) => {
     try {
-      resolve(execSync(cmd, { stdio: "inherit" }));
+      resolve(
+        execFileSync(path.resolve(cwd, file), params, {
+          stdio: "inherit",
+          shell: true,
+          cwd,
+        }),
+      );
     } catch (e) {
       reject(e);
     }
@@ -18,9 +33,8 @@ function exec(cmd: string): Promise<Buffer> {
 }
 
 export async function useDirectory(directory: string): Promise<void> {
-  const dir = path.resolve(directory);
-  const cmd = `cp "${defaultFabloScriptPath}" "${dir}"`;
-  await exec(cmd);
+  const target = path.resolve(directory, "fablo");
+  fs.writeFileSync(target, await fabloScriptRaw, { mode: 0o755 });
 }
 
 export async function useFabloConfig(
@@ -41,11 +55,9 @@ export async function useFabloConfig(
   }
 }
 
-export function executeFabloCommand(directory: string, fabloCommand: string): Promise<Buffer> {
+export function executeFabloCommand(directory: string, ...fabloCommand: string[]): Promise<Buffer> {
   const dir = path.resolve(directory);
-  const fabloScript = path.resolve(dir, "fablo");
-  const cmd = `(cd "${dir}" && "${fabloScript}" ${fabloCommand})`;
-  return exec(cmd);
+  return exec(dir, "fablo", fabloCommand);
 }
 
 export class Fablo {
@@ -64,11 +76,11 @@ export class Fablo {
     return this;
   }
 
-  public execute(command: string): Promise<Buffer> {
+  public execute(...command: string[]): Promise<Buffer> {
     if (this.fabloConfig === undefined) {
-      return this.config(defaultConfigPath).execute(command);
+      return this.config(defaultConfigPath).execute(...command);
     } else {
-      return executeFabloCommand(this.directory, command);
+      return executeFabloCommand(this.directory, ...command);
     }
   }
 

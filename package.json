@@ -1,6 +1,7 @@
 {
   "name": "fablo",
   "version": "0.0.1",
+  "type": "commonjs",
   "description": "JS/TS bindings for Fablo (https://github.com/hyperledger-labs/fablo)",
   "author": "Jakub Dzikowski <jakub@dzikowski.online>",
   "repository": {
@@ -22,13 +23,13 @@
     "fablo": "lib/index.js"
   },
   "scripts": {
-    "clean": "rimraf lib",
-    "build": "tsc",
+    "clean": "rimraf lib bin",
+    "build": "tsc -p tsconfig-dist.json",
     "build:dist": "npm run clean && tsc -p tsconfig-dist.json && npm run copydeps",
     "lint": "eslint --fix src",
-    "update-fablo-script": "curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o bin/fablo && chmod +x bin/fablo",
-    "create-default-fablo-config": "cd bin && ./fablo init",
-    "test": "jest src"
+    "update-bin": "mkdir bin && cd bin && curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/1.1.0/fablo.sh -o ./fablo && chmod +x ./fablo && ./fablo init",
+    "test": "jest src",
+    "prepublishOnly": "npm run clean && npm run build && npm run lint && npm run update-bin && npm run test"
   },
   "dependencies": {
   },
@@ -44,6 +45,7 @@
     "eslint-plugin-json": "^2.1.2",
     "eslint-plugin-prettier": "^3.4.0",
     "jest": "^26.6.3",
+    "nanoid": "^4.0.0",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^26.5.5",
