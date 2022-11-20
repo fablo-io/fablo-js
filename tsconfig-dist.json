@@ -4,17 +4,13 @@
   "compilerOptions": {
     "noEmit": false,
     "rootDir": "./src",
-    "outDir": "./generators"
+    "outDir": "./lib"
   },
   "include": [
     "src"
   ],
   "exclude": [
     "node_modules",
-    "generators",
-    "src/*/templates",
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    "e2e"
+    "**/*.spec.ts"
   ]
 }
