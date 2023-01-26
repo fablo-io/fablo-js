@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { Fablo } from "../lib";
+import { Fablo } from "./";
 
 let workdir: string;
 let fablo: Fablo;
