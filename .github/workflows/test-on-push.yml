@@ -1,14 +1,12 @@
 name: Tests
 on:
   push:
-  pull_request:
-  workflow_dispatch:
 
 jobs:
   test-main:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build & Test
-        run: npm run prepublishOnly
+        run: FABLO_TEST_DIR=${{ runner.temp }} npm run prepublishOnly

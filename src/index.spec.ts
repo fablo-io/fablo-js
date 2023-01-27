@@ -6,7 +6,7 @@ let workdir: string;
 let fablo: Fablo;
 
 beforeAll(() => {
-  workdir = "/tmp";
+  workdir = process.env.FABLO_TEST_DIR ?? "/tmp";
   fablo = Fablo.directory(workdir);
 });
 

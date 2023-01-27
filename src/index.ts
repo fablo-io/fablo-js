@@ -34,6 +34,7 @@ function exec(cwd: string, file: string, params: string[]): Promise<Buffer> {
 
 export async function useDirectory(directory: string): Promise<void> {
   const target = path.resolve(directory, "fablo");
+  console.log(`Copying Fablo script to ${target}...`);
   fs.writeFileSync(target, await fabloScriptRaw, { mode: 0o755 });
 }
 
@@ -43,6 +44,7 @@ export async function useFabloConfig(
   overrideFn?: (_: Config) => Config,
 ): Promise<void> {
   const targetConfigPath = path.resolve(directory, "fablo-config.json");
+  console.log(`Creating Fablo config file in ${targetConfigPath}...`);
 
   if (typeof config === "string") {
     const raw = fs.readFileSync(path.resolve(config), "utf8");
