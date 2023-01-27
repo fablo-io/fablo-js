@@ -1,20 +1,11 @@
 import { execFileSync } from "child_process";
 import * as path from "path";
-import * as fs from "fs";
+import { promises as fs } from "fs";
 import { FabloConfigJson as Config } from "./FabloConfigJson";
 
+const fabloScriptRaw = fs.readFile(path.resolve("./bin/fablo"));
 const defaultConfigPath = path.resolve("./bin/fablo-config.json");
 const defaultDirectory = path.resolve(".");
-
-const fabloScriptRaw = new Promise<Buffer>((resolve, reject) => {
-  fs.readFile(path.resolve("./bin/fablo"), (error, data) => {
-    if (error) {
-      reject(error);
-    } else {
-      resolve(data);
-    }
-  });
-});
 
 function exec(cwd: string, file: string, params: string[]): Promise<Buffer> {
   return new Promise<Buffer>((resolve, reject) => {
@@ -32,28 +23,26 @@ function exec(cwd: string, file: string, params: string[]): Promise<Buffer> {
   });
 }
 
-export async function useDirectory(directory: string): Promise<void> {
+export function useDirectory(directory: string): Promise<void> {
   const target = path.resolve(directory, "fablo");
-  console.log(`Copying Fablo script to ${target}...`);
-  fs.writeFileSync(target, await fabloScriptRaw, { mode: 0o755 });
+  return fabloScriptRaw.then((buffer) => fs.writeFile(target, buffer, { mode: 0o755 }));
 }
 
-export async function useFabloConfig(
+export function useFabloConfig(
   directory: string,
   config: string | Config,
   overrideFn?: (_: Config) => Config,
 ): Promise<void> {
   const targetConfigPath = path.resolve(directory, "fablo-config.json");
-  console.log(`Creating Fablo config file in ${targetConfigPath}...`);
 
   if (typeof config === "string") {
-    const raw = fs.readFileSync(path.resolve(config), "utf8");
-    const obj = JSON.parse(raw) as Config;
-    const updated = typeof overrideFn === "function" ? overrideFn(obj) : obj;
-    fs.writeFileSync(targetConfigPath, JSON.stringify(updated, undefined, 2));
+    return fs
+      .readFile(path.resolve(config), "utf8")
+      .then((raw) => JSON.parse(raw) as Config)
+      .then((obj) => useFabloConfig(directory, obj, overrideFn));
   } else {
     const updated = typeof overrideFn === "function" ? overrideFn(config) : config;
-    fs.writeFileSync(targetConfigPath, JSON.stringify(updated, undefined, 2));
+    return fs.writeFile(targetConfigPath, JSON.stringify(updated, undefined, 2));
   }
 }
 
@@ -82,7 +71,7 @@ export class Fablo {
     if (this.fabloConfig === undefined) {
       return this.config(defaultConfigPath).execute(...command);
     } else {
-      return executeFabloCommand(this.directory, ...command);
+      return this.inProgress.then(() => executeFabloCommand(this.directory, ...command));
     }
   }
 
