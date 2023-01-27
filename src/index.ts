@@ -1,10 +1,10 @@
-import { execFileSync } from "child_process";
+import { execSync } from "child_process";
 import * as path from "path";
 import { promises as fs } from "fs";
 import { FabloConfigJson as Config } from "./FabloConfigJson";
 
-const fabloScriptRaw = fs.readFile(path.resolve("./bin/fablo"));
-const defaultConfigPath = path.resolve("./bin/fablo-config.json");
+const fabloScriptRaw = fs.readFile(require.resolve("../bin/fablo"));
+const defaultConfigPath = require.resolve("../bin/fablo-config.json");
 const defaultDirectory = path.resolve(".");
 
 function exec(cwd: string, file: string, params: string[]): Promise<Buffer> {
