@@ -10,13 +10,8 @@ const defaultDirectory = path.resolve(".");
 function exec(cwd: string, file: string, params: string[]): Promise<Buffer> {
   return new Promise<Buffer>((resolve, reject) => {
     try {
-      resolve(
-        execFileSync(path.resolve(cwd, file), params, {
-          stdio: "inherit",
-          shell: true,
-          cwd,
-        }),
-      );
+      const cmd = `"${path.resolve(cwd, file)}" ${params.map((p) => `"${p}"`).join(" ")}`;
+      resolve(execSync(cmd, { stdio: "inherit", cwd }));
     } catch (e) {
       reject(e);
     }

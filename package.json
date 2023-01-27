@@ -1,6 +1,6 @@
 {
   "name": "fablo",
-  "version": "0.0.1-alpha1",
+  "version": "0.0.1-alpha4",
   "type": "commonjs",
   "description": "JS/TS bindings for Fablo (https://github.com/hyperledger-labs/fablo)",
   "author": "Jakub Dzikowski <jakub@dzikowski.online>",
