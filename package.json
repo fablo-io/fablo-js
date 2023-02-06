@@ -1,9 +1,10 @@
 {
   "name": "fablo",
-  "version": "0.0.1-alpha4",
+  "version": "0.0.1",
   "type": "commonjs",
   "description": "JS/TS bindings for Fablo (https://github.com/hyperledger-labs/fablo)",
   "author": "Jakub Dzikowski <jakub@dzikowski.online>",
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fablo-io/fablo-js.git"
@@ -19,9 +20,6 @@
     "url": "https://github.com/fablo-io/fablo-js/issues"
   },
   "homepage": "https://github.com/fablo-io/fablo-js#readme",
-  "bin": {
-    "fablo": "lib/index.js"
-  },
   "scripts": {
     "clean": "rimraf lib bin",
     "build": "tsc -p tsconfig-dist.json",

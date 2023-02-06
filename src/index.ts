@@ -1,7 +1,9 @@
 import { execSync } from "child_process";
 import * as path from "path";
-import { promises as fs } from "fs";
-import { FabloConfigJson as Config } from "./FabloConfigJson";
+import { promises as fs, existsSync } from "fs";
+import { FabloConfigJson as FabloConfig } from "./FabloConfigJson";
+
+export { FabloConfig };
 
 const fabloScriptRaw = fs.readFile(require.resolve("../bin/fablo"));
 const defaultConfigPath = require.resolve("../bin/fablo-config.json");
@@ -25,15 +27,15 @@ export function useDirectory(directory: string): Promise<void> {
 
 export function useFabloConfig(
   directory: string,
-  config: string | Config,
-  overrideFn?: (_: Config) => Config,
+  config: string | FabloConfig,
+  overrideFn?: (_: FabloConfig) => FabloConfig,
 ): Promise<void> {
   const targetConfigPath = path.resolve(directory, "fablo-config.json");
 
   if (typeof config === "string") {
     return fs
-      .readFile(path.resolve(config), "utf8")
-      .then((raw) => JSON.parse(raw) as Config)
+      .readFile(path.resolve(directory, config), "utf8")
+      .then((raw) => JSON.parse(raw) as FabloConfig)
       .then((obj) => useFabloConfig(directory, obj, overrideFn));
   } else {
     const updated = typeof overrideFn === "function" ? overrideFn(config) : config;
@@ -49,22 +51,44 @@ export function executeFabloCommand(directory: string, ...fabloCommand: string[]
 export class Fablo {
   private inProgress: Promise<unknown>;
   private directory: string;
-  private fabloConfig: string | Config | undefined;
+  private fabloConfig: string | FabloConfig | undefined;
 
   private constructor(directory: string) {
     this.directory = directory;
     this.inProgress = useDirectory(directory);
   }
 
-  public config(config: string | Config, overrideFn?: (_: Config) => Config): Fablo {
+  public config(config: string | FabloConfig, overrideFn?: (_: FabloConfig) => FabloConfig): Fablo {
     this.fabloConfig = config;
     this.inProgress = this.inProgress.then(() => useFabloConfig(this.directory, config, overrideFn));
     return this;
   }
 
+  public defaultConfig(overrideFn?: (_: FabloConfig) => FabloConfig): Fablo {
+    const fullFabloConfigPath = path.resolve(this.directory, "fablo-config.json");
+
+    // File does not exist, or if we want to override some values
+    if (!existsSync(fullFabloConfigPath) || overrideFn) {
+      return this.config(defaultConfigPath, overrideFn);
+    }
+
+    // File exists and we don't want to override it
+    else {
+      if (!this.fabloConfig) {
+        this.fabloConfig = fullFabloConfigPath;
+      }
+      return this;
+    }
+  }
+
+  public then(fn: () => void | Promise<void>): Fablo {
+    this.inProgress = this.inProgress.then(fn);
+    return this;
+  }
+
   public execute(...command: string[]): Promise<Buffer> {
     if (this.fabloConfig === undefined) {
-      return this.config(defaultConfigPath).execute(...command);
+      return this.defaultConfig().execute(...command);
     } else {
       return this.inProgress.then(() => executeFabloCommand(this.directory, ...command));
     }
@@ -74,7 +98,15 @@ export class Fablo {
     return new Fablo(directory);
   }
 
-  public static config(config: string | Config, overrideFn?: (_: Config) => Config): Fablo {
+  public static config(config: string | FabloConfig, overrideFn?: (_: FabloConfig) => FabloConfig): Fablo {
     return Fablo.directory(defaultDirectory).config(config, overrideFn);
+  }
+
+  public static defaultConfig(overrideFn?: (_: FabloConfig) => FabloConfig): Fablo {
+    return Fablo.directory(defaultDirectory).defaultConfig(overrideFn);
+  }
+
+  public static then(fn: () => void | Promise<void>): Fablo {
+    return Fablo.directory(defaultDirectory).then(fn);
   }
 }
