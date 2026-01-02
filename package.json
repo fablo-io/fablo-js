@@ -1,6 +1,6 @@
 {
   "name": "fablo",
-  "version": "2.2.0",
+  "version": "2.4.3",
   "type": "commonjs",
   "description": "JS/TS bindings for Fablo (https://github.com/hyperledger-labs/fablo)",
   "author": "Jakub Dzikowski <jakub@dzikowski.online>",
@@ -25,7 +25,7 @@
     "build": "tsc -p tsconfig-dist.json",
     "build:dist": "npm run clean && tsc -p tsconfig-dist.json && npm run copydeps",
     "lint": "eslint --fix src",
-    "update-bin": "mkdir -p bin && cd bin && curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/2.2.0/fablo.sh -o ./fablo && chmod +x ./fablo && ./fablo init",
+    "update-bin": "mkdir -p bin && cd bin && curl -Lf https://github.com/hyperledger-labs/fablo/releases/download/2.4.3/fablo.sh -o ./fablo && chmod +x ./fablo && ./fablo init",
     "test": "jest src --runInBand",
     "prepublishOnly": "npm run clean && npm run build && npm run lint && npm run update-bin && npm run test"
   },
